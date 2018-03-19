@@ -13,8 +13,9 @@ class Controller extends BaseController
      * @SWG\Swagger(
      *   basePath="/",
      *   @SWG\Info(
-     *     title="Customer rate calculator API",
-     *     version="1.0.0"
+     *     title="Posts Crud",
+     *     version="1.0.0",
+     *     license="Maric Djordje"
      *   )
      * )
      */
