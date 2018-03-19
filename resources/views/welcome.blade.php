@@ -9,7 +9,9 @@
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
-
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <!-- Styles -->
         <style>
             html, body {
@@ -19,10 +21,6 @@
                 font-weight: 100;
                 height: 100vh;
                 margin: 0;
-            }
-
-            .full-height {
-                height: 100vh;
             }
 
             .flex-center {
@@ -62,7 +60,59 @@
             .m-b-md {
                 margin-bottom: 30px;
             }
+            #records_table{
+                width: 50%;
+            }
+            #content{
+                color: black;
+            }
         </style>
+
+        <script>
+            $(document).ready(function(){
+                    $.ajax({url: "http://localhost:8000/api/post",
+                        method:"GET",
+                        success: function(result){
+                            for(var post in result.data){
+                                console.log(result.data[post].title);
+                                var tr = $('<tr>').append(
+                                    $('<td>').text(result.data[post].title),
+                                    $('<td>').text(result.data[post].body)
+                                );
+                                tr.attr("data-id", result.data[post].id);
+                                $("#content").append(tr);
+                            }
+
+                    }});
+                    $("#content").on('click',function (event) {
+                        $('.single_post').show();
+                        var id = $(event.target.parentElement).attr("data-id");
+                        $.ajax({url: "http://localhost:8000/api/post/"+id,
+                            method:"GET",
+                            success: function(result) {
+                            console.log(result);
+                                var title = '<h2>' + result.data.title + '</h2>';
+                                var body = '<p>' + result.data.body + '</p>';
+                                var user = '<p>' + result.data.user.data.username + '</p>';
+                                var comments = '<p>' + result.data.comments.data + '</p>';
+                                $('#post_title').append(title);
+                                $('#post_body').append(body);
+                                $('#author').append(user);
+                                $('#post_comment').append(comments);
+                                $('.post_table').hide();
+
+                            }
+                        })
+                    });
+                $("#buttonOK").on('click',function (event) {
+                    $('#post_title').html('');
+                    $('#post_body').html('');
+                    $('#author').html('');
+                    $('.single_post').hide();
+                    $('.post_table').show();
+                    });
+            });
+        </script>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
@@ -77,19 +127,42 @@
                 </div>
             @endif
 
-            <div class="content">
-                <div class="title m-b-md">
-                    Laravel
+        </div>
+                <div class="container">
+                    <div class="post_table">
+                        <h2>Posts</h2>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>body</th>
+
+                            </tr>
+                            </thead>
+                            <tbody id="content">
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="single_post" style="text-align: center">
+                        <div class="post_content" style="color: black">
+
+                            <div id="post_title"></div>
+                            <div id="post_body"></div>
+
+                            <div id="author">
+                                <p>Author name</p>
+                            </div>
+
+                            <div id="post_comment" style="text-align: left">
+                                <p> Comments</p>
+
+                            </div>
+                        </div>
+                        <button class="btn btn-info" id="buttonOK">Ok</button>
+                    </div>
                 </div>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
-            </div>
-        </div>
     </body>
 </html>

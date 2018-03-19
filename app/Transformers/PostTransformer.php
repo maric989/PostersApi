@@ -13,6 +13,7 @@ class PostTransformer extends \League\Fractal\TransformerAbstract
       return [
           'title'      =>  $post->title,
           'body'       =>  $post->body,
+          'id'         =>  $post->id,
           'created_at' =>  $post->created_at->diffForHumans(),
       ];
     }
