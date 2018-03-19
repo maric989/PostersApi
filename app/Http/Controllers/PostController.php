@@ -9,6 +9,7 @@ use App\Http\Requests\Post\PostUpdateRequest;
 use App\Post;
 use App\Transformers\PostTransformer;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 
 
 class PostController extends Controller
@@ -60,7 +61,7 @@ class PostController extends Controller
 
         if ($post->user_id != Auth::user()->id)
         {
-            return back();
+            throw new AccessDeniedException();
         }
 
         $post->body = $request->body??$post->body;
