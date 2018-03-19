@@ -9,22 +9,6 @@ https://github.com/maric989/PostersApi.git
     
     composer install
     
--Install swagger
-
-    php composer require "darkaonline/l5-swagger:5.5.*"
-    
-    php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"
-    
-Open your AppServiceProvider (located in app/Providers) and add this line in register function
-    
-    $this->app->register(\L5Swagger\L5SwaggerServiceProvider::class);
-
-or open your config/app.php and add this line in providers section
-
-    L5Swagger\L5SwaggerServiceProvider::class,
-
-After swagger install do the next:
-
     php artisan key:genereate
 
     composer update
