@@ -90,15 +90,16 @@
                         $.ajax({url: "http://localhost:8000/api/post/"+id,
                             method:"GET",
                             success: function(result) {
-                            console.log(result);
+
                                 var title = '<h2>' + result.data.title + '</h2>';
                                 var body = '<p>' + result.data.body + '</p>';
                                 var user = '<p>' + result.data.user.data.username + '</p>';
-                                var comments = '<p>' + result.data.comments.data + '</p>';
+
+
                                 $('#post_title').append(title);
                                 $('#post_body').append(body);
                                 $('#author').append(user);
-                                $('#post_comment').append(comments);
+                                createCommentList(result.data.comments.data);
                                 $('.post_table').hide();
 
                             }
@@ -108,10 +109,20 @@
                     $('#post_title').html('');
                     $('#post_body').html('');
                     $('#author').html('');
+                    $('#post_comment').html('');
                     $('.single_post').hide();
                     $('.post_table').show();
                     });
             });
+
+            function createCommentList(commentList) {
+                var comments = '';
+                for (var com in commentList) {
+                    comments += '<p>' + commentList[com].body + '</p>';
+                }
+
+                $('#post_comment').append(comments);
+            }
         </script>
     </head>
     <body>
