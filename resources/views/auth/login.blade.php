@@ -8,8 +8,6 @@
                 <div class="panel-heading">Login</div>
 
                 <div class="panel-body">
-                    <form class="form-horizontal" method="POST" action="{{ route('login') }}">
-                        {{ csrf_field() }}
 
                         <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                             <label for="email" class="col-md-4 control-label">E-Mail Address</label>
@@ -39,19 +37,10 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="col-md-6 col-md-offset-4">
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}> Remember Me
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
 
                         <div class="form-group">
                             <div class="col-md-8 col-md-offset-4">
-                                <button type="submit" class="btn btn-primary">
+                                <button id="subbmit" class="btn btn-primary">
                                     Login
                                 </button>
 
@@ -60,10 +49,41 @@
                                 </a>
                             </div>
                         </div>
-                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+    <script>
+        $(document).ready(function() {
+            $('#subbmit').on('click', function () {
+                var username = $('#email').val();
+                var password = $('#password').val();
+                var client_id = 2;
+                var type = 'password';
+                var secret = "yS1E9fqaLOqJzWvCjTlhSaeJy0jenocP2H8MCQDk";
+                $.ajax({
+                    url:"/oauth/token",
+                    method: "POST",
+                    data: {
+                        username: username,
+                        password: password,
+                        grant_type: type,
+                        client_id : client_id,
+                        client_secret: secret
+                    },
+                    contentType: " application/x-www-form-urlencoded",
+                    dataType: "json",
+                    success: function(data) {
+                        sessionStorage.setItem("token",data.access_token);
+                        window.location.href ='/';
+                    },
+                    error: function(ts) {
+                        alert(ts.responseText) }
+
+                });
+
+            });
+        });
+    </script>
 @endsection

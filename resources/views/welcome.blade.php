@@ -69,74 +69,115 @@
         </style>
 
         <script>
-            $(document).ready(function(){
-                    $.ajax({url: "http://localhost:8000/api/post",
-                        method:"GET",
-                        success: function(result){
-                            for(var post in result.data){
-                                console.log(result.data[post].title);
-                                var tr = $('<tr>').append(
-                                    $('<td>').text(result.data[post].title),
-                                    $('<td>').text(result.data[post].body)
-                                );
-                                tr.attr("data-id", result.data[post].id);
-                                $("#content").append(tr);
-                            }
+            $(document).ready(function() {
+                $.ajax({
+                    url: "http://localhost:8000/api/post",
+                    method: "GET",
+                    success: function (result) {
+                        for (var post in result.data) {
+                            var tr = $('<tr>').append(
+                                $('<td>').text(result.data[post].title),
+                                $('<td>').text(result.data[post].body)
+                            );
+                            tr.attr("data-id", result.data[post].id);
+                            $("#content").append(tr);
+                        }
 
-                    }});
-                    $("#content").on('click',function (event) {
-                        $('.single_post').show();
-                        var id = $(event.target.parentElement).attr("data-id");
-                        $.ajax({url: "http://localhost:8000/api/post/"+id,
-                            method:"GET",
-                            success: function(result) {
+                    }
+                });
+                $("#content").on('click', function (event) {
+                    $('.single_post').show();
+                    var id = $(event.target.parentElement).attr("data-id");
+                    $.ajax({
+                        url: "http://localhost:8000/api/post/" + id,
+                        method: "GET",
+                        success: function (result) {
 
-                                var title = '<h2>' + result.data.title + '</h2>';
-                                var body = '<p>' + result.data.body + '</p>';
-                                var user = '<p>' + result.data.user.data.username + '</p>';
+                            var title = '<h2>' + result.data.title + '</h2>';
+                            var body = '<p>' + result.data.body + '</p>';
+                            var user = '<p>' + result.data.user.data.username + '</p>';
 
 
-                                $('#post_title').append(title);
-                                $('#post_body').append(body);
-                                $('#author').append(user);
-                                createCommentList(result.data.comments.data);
-                                $('.post_table').hide();
+                            $(".post_content").append("<div id='postId' style='display:none'>" + result.data.id + "</div>");
+                            $('#post_title').append(title);
+                            $('#post_body').append(body);
+                            $('#author').append(user);
+                            createCommentList(result.data.comments.data);
+                            $('.post_table').hide();
 
-                            }
-                        })
-                    });
-                $("#buttonOK").on('click',function (event) {
+                        }
+                    })
+                });
+                $("#buttonOK").on('click', function (event) {
                     $('#post_title').html('');
                     $('#post_body').html('');
                     $('#author').html('');
                     $('#post_comment').html('');
                     $('.single_post').hide();
                     $('.post_table').show();
+                });
+
+                $("#comment_subbmit").on('click', function (event) {
+
+                    var id = $('#postId').text();
+                    var body = $('#comment_body').val();
+                    var token = "Bearer "+ sessionStorage.getItem("token");
+
+                    $.ajax({
+                        url: "http://localhost:8000/api/post/" + id + "/comment",
+                        method: "POST",
+                        data: {
+                            post_id: id,
+                            body: body,
+                            user_id: 1
+                        },
+                        headers: {
+                            "Authorization": token,
+                        },
+                        contentType: " application/x-www-form-urlencoded",
+                        dataType: "json",
+
+                        success: function (result) {
+                            //TODO Ocisti komentare
+                            $('#post_comment').append(result.data.body);
+                            $('#comment_body').html('');
+                        },
+                        error: function(ts) {
+                            alert(ts.responseText) }
                     });
-            });
 
-            function createCommentList(commentList) {
-                var comments = '';
-                for (var com in commentList) {
-                    comments += '<p>' + commentList[com].body + '</p>';
+                });
+
+                $("#post_create").on('click', function (event) {
+
+                    $('#myModal').modal('toggle')
+                    $('#myModal').modal('show')
+
+                });
+
+
+
+
+                //TODO NA refresh nestaju komentari
+                function createCommentList(commentList) {
+                    var comments = '';
+                    for (var com in commentList) {
+                        comments += '<p>' + commentList[com].body + '</p>';
+                    }
+
+                    $('#post_comment').append(comments);
                 }
-
-                $('#post_comment').append(comments);
-            }
+            });
         </script>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
                 <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
-                        <a href="{{ route('register') }}">Register</a>
-                    @endauth
+                    {{--<button id="post_create" class="btn btn-success">Create Post</button>--}}
+                    <button id="post_create" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
                 </div>
-            @endif
+
 
         </div>
                 <div class="container">
@@ -147,7 +188,6 @@
                             <tr>
                                 <th>Title</th>
                                 <th>body</th>
-
                             </tr>
                             </thead>
                             <tbody id="content">
@@ -168,12 +208,36 @@
 
                             <div id="post_comment" style="text-align: left">
                                 <p> Comments</p>
-
+                                <input type="text" id="comment_body">
+                                <button id="comment_subbmit">Add Comment</button>
                             </div>
                         </div>
                         <button class="btn btn-info" id="buttonOK">Ok</button>
                     </div>
                 </div>
+
+        <!-- Trigger the modal with a button -->
+
+        <!-- Modal -->
+        <div id="myModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Some text in the modal.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
     </body>
 </html>
