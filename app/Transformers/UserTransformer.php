@@ -12,6 +12,7 @@ class UserTransformer extends \League\Fractal\TransformerAbstract
       return [
         'username' => $user->username,
         'avatar'   => $user->avatar(),
+        'user_id'  => $user->id
       ];
     }
 }

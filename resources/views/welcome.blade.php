@@ -10,9 +10,17 @@
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{{ URL::asset('css/my.css') }}">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <!-- Styles -->
+        <style type="text/css">
+            @font-face {
+                font-family: OptimusPrinceps;
+                src: url('{{ public_path('fonts/OptimusPrinceps.tff') }}');
+            }
+        </style>
+
         <style>
             html, body {
                 background-color: #fff;
@@ -67,114 +75,22 @@
                 color: black;
             }
         </style>
-
         <script>
-            $(document).ready(function() {
-                $.ajax({
-                    url: "http://localhost:8000/api/post",
-                    method: "GET",
-                    success: function (result) {
-                        for (var post in result.data) {
-                            var tr = $('<tr>').append(
-                                $('<td>').text(result.data[post].title),
-                                $('<td>').text(result.data[post].body)
-                            );
-                            tr.attr("data-id", result.data[post].id);
-                            $("#content").append(tr);
-                        }
-
-                    }
-                });
-                $("#content").on('click', function (event) {
-                    $('.single_post').show();
-                    var id = $(event.target.parentElement).attr("data-id");
-                    $.ajax({
-                        url: "http://localhost:8000/api/post/" + id,
-                        method: "GET",
-                        success: function (result) {
-
-                            var title = '<h2>' + result.data.title + '</h2>';
-                            var body = '<p>' + result.data.body + '</p>';
-                            var user = '<p>' + result.data.user.data.username + '</p>';
-
-
-                            $(".post_content").append("<div id='postId' style='display:none'>" + result.data.id + "</div>");
-                            $('#post_title').append(title);
-                            $('#post_body').append(body);
-                            $('#author').append(user);
-                            createCommentList(result.data.comments.data);
-                            $('.post_table').hide();
-
-                        }
-                    })
-                });
-                $("#buttonOK").on('click', function (event) {
-                    $('#post_title').html('');
-                    $('#post_body').html('');
-                    $('#author').html('');
-                    $('#post_comment').html('');
-                    $('.single_post').hide();
-                    $('.post_table').show();
-                });
-
-                $("#comment_subbmit").on('click', function (event) {
-
-                    var id = $('#postId').text();
-                    var body = $('#comment_body').val();
-                    var token = "Bearer "+ sessionStorage.getItem("token");
-
-                    $.ajax({
-                        url: "http://localhost:8000/api/post/" + id + "/comment",
-                        method: "POST",
-                        data: {
-                            post_id: id,
-                            body: body,
-                            user_id: 1
-                        },
-                        headers: {
-                            "Authorization": token,
-                        },
-                        contentType: " application/x-www-form-urlencoded",
-                        dataType: "json",
-
-                        success: function (result) {
-                            //TODO Ocisti komentare
-                            $('#post_comment').append(result.data.body);
-                            $('#comment_body').html('');
-                        },
-                        error: function(ts) {
-                            alert(ts.responseText) }
-                    });
-
-                });
-
-                $("#post_create").on('click', function (event) {
-
-                    $('#myModal').modal('toggle')
-                    $('#myModal').modal('show')
-
-                });
-
-
-
-
-                //TODO NA refresh nestaju komentari
-                function createCommentList(commentList) {
-                    var comments = '';
-                    for (var com in commentList) {
-                        comments += '<p>' + commentList[com].body + '</p>';
-                    }
-
-                    $('#post_comment').append(comments);
+            $(document).ready(function (e) {
+                var token = sessionStorage.getItem("token");
+                if (token == null)
+                {
+                    window.location.href = "http://localhost:8000/login";
                 }
             });
         </script>
+        <script src="{{ URL::asset('js/myJS.js') }}"> </script>
     </head>
     <body>
         <div class="flex-center position-ref full-height">
                 <div class="top-right links">
                     {{--<button id="post_create" class="btn btn-success">Create Post</button>--}}
-                    <button id="post_create" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+                    <button id="post_create" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Create Post</button>
 
                 </div>
 
@@ -184,10 +100,11 @@
                     <div class="post_table">
                         <h2>Posts</h2>
                         <table class="table">
-                            <thead>
+                            <thead style="text-align: right">
                             <tr>
+                                <th>User</th>
                                 <th>Title</th>
-                                <th>body</th>
+                                <th>Content</th>
                             </tr>
                             </thead>
                             <tbody id="content">
@@ -203,7 +120,6 @@
                             <div id="post_body"></div>
 
                             <div id="author">
-                                <p>Author name</p>
                             </div>
 
                             <div id="post_comment" style="text-align: left">
@@ -229,10 +145,62 @@
                         <h4 class="modal-title">Modal Header</h4>
                     </div>
                     <div class="modal-body">
-                        <p>Some text in the modal.</p>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label  class="col-sm-2 control-label"
+                                        for="inputTitle">Title</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control"
+                                           id="inputTitle" placeholder="Title of post"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label"
+                                       for="inputBody" >Body</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control"
+                                           id="inputBody" placeholder="Body of post"/>
+                                </div>
+                            </div>
+
+                        </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" id="postCreateModal"> Create Post</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="myModalEdit" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Edit post</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" role="form">
+                            <input type="hidden" name="id" id="id" value="-1">
+                            <input type="hidden" name="_method" value="PATCH">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label"
+                                       for="inputBody" >Body</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control"
+                                           id="inputBody" placeholder="Body of post"/>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="editPost" class="btn btn-success" id="postEditModal"> Edit Post</button>
                     </div>
                 </div>
 

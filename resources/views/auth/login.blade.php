@@ -8,8 +8,10 @@
                 <div class="panel-heading">Login</div>
 
                 <div class="panel-body">
+                    <input id="client_id" type="hidden" class="form-control" name="client_id" value="{{ env('client_id') }}">
+                    <input id="client_secret" type="hidden" class="form-control" name="client_secret" value="{{ env('client_secret') }}">
 
-                        <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
+                    <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }}">
                             <label for="email" class="col-md-4 control-label">E-Mail Address</label>
 
                             <div class="col-md-6">
@@ -59,9 +61,10 @@
             $('#subbmit').on('click', function () {
                 var username = $('#email').val();
                 var password = $('#password').val();
-                var client_id = 2;
+                var client_id = $('#client_id').val();
+                var client_secret = $('#client_secret').val();
                 var type = 'password';
-                var secret = "yS1E9fqaLOqJzWvCjTlhSaeJy0jenocP2H8MCQDk";
+
                 $.ajax({
                     url:"/oauth/token",
                     method: "POST",
@@ -70,13 +73,25 @@
                         password: password,
                         grant_type: type,
                         client_id : client_id,
-                        client_secret: secret
+                        client_secret: client_secret
                     },
                     contentType: " application/x-www-form-urlencoded",
                     dataType: "json",
                     success: function(data) {
+//                        console.log(data);
                         sessionStorage.setItem("token",data.access_token);
-                        window.location.href ='/';
+                        var token = "Bearer "+ sessionStorage.getItem("token");
+                        $.ajax({
+                           url: "/api/user",
+                           method: "GET",
+                            headers: {
+                                "Authorization": token
+                            },
+                            success: function (data) {
+                                sessionStorage.setItem("userID",data.id);
+                                window.location.href = 'http://localhost:8000/';
+                            }
+                        });
                     },
                     error: function(ts) {
                         alert(ts.responseText) }

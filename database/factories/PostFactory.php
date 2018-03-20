@@ -16,7 +16,7 @@ use Faker\Generator as Faker;
 $factory->define(App\Post::class, function (Faker $faker) {
     return [
         'title' => $faker->realText(30),
-        'body' => $faker->realText(250),
+        'body' => $faker->realText(1500),
         'user_id' => factory(App\User::class),
     ];
 });
