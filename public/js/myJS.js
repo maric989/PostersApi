@@ -32,10 +32,9 @@ $(document).ready(function() {
 
 
     $("#content").on('click', function (event) {
-        console.log(event);
         $('.single_post').show();
-        var id = $(event.target.parentElement).attr("data-id");
-        getContent(id);
+        sessionStorage.setItem('post-id', $(event.target.parentElement).attr("data-id"));
+        getContent();
 
     });
     $("#buttonOK").on('click', function (event) {
@@ -54,7 +53,7 @@ $(document).ready(function() {
         var token = "Bearer "+ sessionStorage.getItem("token");
 
         $.ajax({
-            url: "http://localhost:8000/api/post/" + id + "/comment",
+            url: "http://localhost:8000/api/post/" + sessionStorage.getItem('post-id') + "/comment",
             method: "POST",
             data: {
                 post_id: id,
@@ -69,8 +68,8 @@ $(document).ready(function() {
 
             success: function (result) {
                 //TODO Ocisti komentare
-                $('#post_comment').append(result.data.body);
-                $('#comment_body').html('');
+                $('#post_comment').append('<p>' + result.data.body + '</p>');
+                $('#comment_body').val('');
             },
             error: function(ts) {
                 alert(ts.responseText) }
@@ -201,6 +200,7 @@ $(document).ready(function() {
 
     //TODO NA refresh nestaju komentari
     function createCommentList(commentList) {
+        $('#post_comment').html('');
         var comments = '';
         for (var com in commentList) {
             comments += '<p>' + commentList[com].body + '</p>';
@@ -209,9 +209,9 @@ $(document).ready(function() {
         $('#post_comment').append(comments);
     }
 
-    function getContent(id) {
+    function getContent() {
         $.ajax({
-            url: "http://localhost:8000/api/post/" + id,
+            url: "http://localhost:8000/api/post/" + sessionStorage.getItem('post-id'),
             method: "GET",
             success: function (result) {
 

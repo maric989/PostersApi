@@ -22,10 +22,11 @@
         </style>
 
         <style>
+
             html, body {
                 background-color: #fff;
                 color: #636b6f;
-                font-family: 'Raleway', sans-serif;
+                font-family: OptimusPrinceps;
                 font-weight: 100;
                 height: 100vh;
                 margin: 0;
@@ -98,7 +99,7 @@
         </div>
                 <div class="container">
                     <div class="post_table">
-                        <h2>Posts</h2>
+                        <h2>Posts CRUD app</h2>
                         <table class="table">
                             <thead style="text-align: right">
                             <tr>
@@ -113,7 +114,7 @@
                         </table>
                     </div>
 
-                    <div class="single_post" style="text-align: center">
+                    <div class="single_post" style="text-align: center;display: none">
                         <div class="post_content" style="color: black">
 
                             <div id="post_title"></div>
@@ -121,14 +122,17 @@
 
                             <div id="author">
                             </div>
-
-                            <div id="post_comment" style="text-align: left">
+                            <div id="create-comment">
                                 <p> Comments</p>
                                 <input type="text" id="comment_body">
-                                <button id="comment_subbmit">Add Comment</button>
+                                <button id="comment_subbmit" class="btn btn-default">Add Comment</button>
+                            </div>
+                            <div id="post_comment" style="text-align: left">
+
                             </div>
                         </div>
-                        <button class="btn btn-info" id="buttonOK">Ok</button>
+                        <br>
+                        <button class="btn btn-info" id="buttonOK">Back to home</button>
                     </div>
                 </div>
 
