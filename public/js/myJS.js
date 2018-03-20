@@ -200,10 +200,13 @@ $(document).ready(function() {
 
     //TODO NA refresh nestaju komentari
     function createCommentList(commentList) {
+        console.log(commentList);
         $('#post_comment').html('');
         var comments = '';
         for (var com in commentList) {
             comments += '<p>' + commentList[com].body + '</p>';
+            comments += '<p style="color:#001b44">  by: '+ commentList[com].user.data.username + '</p>';
+            comments += '<p style="color:#46b8da">' + commentList[com].created_at + '</p> <hr>';
         }
 
         $('#post_comment').append(comments);
